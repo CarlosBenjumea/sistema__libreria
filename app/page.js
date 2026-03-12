@@ -1,65 +1,115 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useEffect, useState } from 'react';
+import { BookOpen, Users, ClipboardSignature } from 'lucide-react';
+
+export default function Dashboard() {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/dashboard')
+      .then(res => res.json())
+      .then(data => {
+        setStats(data);
+        setLoading(false);
+      })
+      .catch(err => console.error(err));
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+        <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '4px solid var(--primary-light)', borderTopColor: 'var(--primary)', animation: 'spin 1s linear infinite' }} />
+        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="animate-in">
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Dashboard Overview</h1>
+          <p style={{ color: 'var(--foreground)', opacity: 0.7 }}>Welcome back to the library management system.</p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </div>
+
+      <div className="grid grid-cols-3 stagger-1" style={{ animationDelay: '0.1s', animationFillMode: 'both', animationName: 'fadeIn', animationDuration: '0.4s' }}>
+        <div className="glass-card" style={{ padding: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <p style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--foreground)', opacity: 0.7 }}>Total Books</p>
+              <h3 style={{ fontSize: '2rem', fontWeight: '700', marginTop: '0.5rem' }}>{stats.totalBooks}</h3>
+            </div>
+            <div style={{ background: 'var(--primary-light)', padding: '0.75rem', borderRadius: 'var(--radius-md)', color: 'var(--primary)' }}>
+              <BookOpen size={24} />
+            </div>
+          </div>
         </div>
-      </main>
+
+        <div className="glass-card" style={{ padding: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <p style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--foreground)', opacity: 0.7 }}>Registered Users</p>
+              <h3 style={{ fontSize: '2rem', fontWeight: '700', marginTop: '0.5rem' }}>{stats.totalUsers}</h3>
+            </div>
+            <div style={{ background: 'rgba(16, 185, 129, 0.2)', padding: '0.75rem', borderRadius: 'var(--radius-md)', color: 'var(--success)' }}>
+              <Users size={24} />
+            </div>
+          </div>
+        </div>
+
+        <div className="glass-card" style={{ padding: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <p style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--foreground)', opacity: 0.7 }}>Active Loans</p>
+              <h3 style={{ fontSize: '2rem', fontWeight: '700', marginTop: '0.5rem' }}>{stats.activeLoans}</h3>
+            </div>
+            <div style={{ background: 'rgba(245, 158, 11, 0.2)', padding: '0.75rem', borderRadius: 'var(--radius-md)', color: 'var(--warning)' }}>
+              <ClipboardSignature size={24} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2 className="stagger-2" style={{ fontSize: '1.5rem', fontWeight: '600', marginTop: '3rem', marginBottom: '1.5rem', animationDelay: '0.2s', animationFillMode: 'both', animationName: 'fadeIn', animationDuration: '0.4s' }}>
+        Recent Activity
+      </h2>
+      
+      <div className="glass-card stagger-3" style={{ animationDelay: '0.3s', animationFillMode: 'both', animationName: 'fadeIn', animationDuration: '0.4s', overflow: 'hidden' }}>
+        {stats.recentActivity && stats.recentActivity.length > 0 ? (
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>User</th>
+                <th>Book</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stats.recentActivity.map((activity) => (
+                <tr key={activity.id}>
+                  <td>{new Date(activity.loan_date).toLocaleDateString()}</td>
+                  <td style={{ fontWeight: '500' }}>{activity.user_name}</td>
+                  <td>{activity.book_title}</td>
+                  <td>
+                    <span className={`badge ${activity.status === 'active' ? 'badge-warning' : 'badge-success'}`}>
+                      {activity.status.charAt(0).toUpperCase() + activity.status.slice(1)}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--foreground)', opacity: 0.6 }}>
+            <ClipboardSignature size={48} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
+            <p>No recent loan activity found.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
