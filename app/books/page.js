@@ -1,7 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Book } from 'lucide-react';
+import Image from 'next/image';
+import { Plus, Trash2, Book, ImagePlus } from 'lucide-react';
+
+const MAX_IMAGE_BYTES = 1_500_000;
 
 export default function BooksPage() {
   const [books, setBooks] = useState([]);
@@ -10,7 +13,12 @@ export default function BooksPage() {
   
   // Form state
   const [formData, setFormData] = useState({
-    title: '', author: '', isbn: '', total_copies: 1, cover_color: '#4f46e5'
+    title: '',
+    author: '',
+    isbn: '',
+    total_copies: 1,
+    cover_color: '#4f46e5',
+    cover_image_url: '',
   });
 
   const fetchBooks = () => {
@@ -27,6 +35,30 @@ export default function BooksPage() {
     fetchBooks();
   }, []);
 
+  const handleCoverChange = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > MAX_IMAGE_BYTES) {
+      alert('La imagen es demasiado grande. Usa una imagen menor a 1.5MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = typeof reader.result === 'string' ? reader.result : '';
+      setFormData((previousForm) => ({ ...previousForm, cover_image_url: result }));
+    };
+    reader.onerror = () => {
+      alert('No se pudo leer la portada seleccionada.');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveCover = () => {
+    setFormData((previousForm) => ({ ...previousForm, cover_image_url: '' }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -38,7 +70,14 @@ export default function BooksPage() {
       
       if (res.ok) {
         setShowForm(false);
-        setFormData({ title: '', author: '', isbn: '', total_copies: 1, cover_color: '#4f46e5' });
+        setFormData({
+          title: '',
+          author: '',
+          isbn: '',
+          total_copies: 1,
+          cover_color: '#4f46e5',
+          cover_image_url: '',
+        });
         fetchBooks();
       } else {
         const data = await res.json();
@@ -102,8 +141,57 @@ export default function BooksPage() {
               <label className="form-label">Cover Color</label>
               <input type="color" className="form-input" value={formData.cover_color} onChange={e => setFormData({...formData, cover_color: e.target.value})} style={{ height: '42px', padding: '0.25rem' }} />
             </div>
-            <div style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '1rem' }}>
-              <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>Save Book</button>
+            <div className="form-group">
+              <label className="form-label">Cover Photo (optional)</label>
+              <label className="btn btn-secondary" style={{ width: 'fit-content', borderStyle: 'dashed' }}>
+                <ImagePlus size={16} />
+                Upload cover
+                <input type="file" accept="image/*" onChange={handleCoverChange} style={{ display: 'none' }} />
+              </label>
+              <span style={{ fontSize: '0.8rem', opacity: 0.65 }}>
+                Image formats. Max size: 1.5MB.
+              </span>
+            </div>
+            <div className="form-group">
+              {formData.cover_image_url ? (
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                  <Image
+                    src={formData.cover_image_url}
+                    alt="Cover preview"
+                    unoptimized
+                    width={120}
+                    height={120}
+                    style={{
+                      width: '120px',
+                      height: '120px',
+                      objectFit: 'cover',
+                      borderRadius: 'var(--radius-md)',
+                      border: '1px solid var(--border)',
+                    }}
+                  />
+                  <button type="button" className="btn btn-secondary" onClick={handleRemoveCover}>
+                    Remove photo
+                  </button>
+                </div>
+              ) : (
+                <div
+                  style={{
+                    height: '120px',
+                    border: '1px dashed var(--border)',
+                    borderRadius: 'var(--radius-md)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: 0.6,
+                    fontSize: '0.9rem',
+                  }}
+                >
+                  No cover selected
+                </div>
+              )}
+            </div>
+            <div style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'flex-end' }}>
+              <button type="submit" className="btn btn-primary" style={{ minWidth: '150px' }}>Save Book</button>
             </div>
           </form>
         </div>
@@ -115,9 +203,25 @@ export default function BooksPage() {
         <div className="grid grid-cols-4 stagger-2" style={{ animationDelay: '0.2s', animationFillMode: 'both', animationName: 'fadeIn', animationDuration: '0.4s' }}>
           {books.map(book => (
             <div key={book.id} className="glass-card" style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ height: '140px', background: book.cover_color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.8)' }}>
-                <Book size={48} />
-              </div>
+              {book.cover_image_url ? (
+                <Image
+                  src={book.cover_image_url}
+                  alt={`Cover of ${book.title}`}
+                  unoptimized
+                  width={800}
+                  height={140}
+                  style={{
+                    width: '100%',
+                    height: '140px',
+                    objectFit: 'cover',
+                    borderBottom: '1px solid var(--card-border)',
+                  }}
+                />
+              ) : (
+                <div style={{ height: '140px', background: book.cover_color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.8)' }}>
+                  <Book size={48} />
+                </div>
+              )}
               <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <h3 style={{ fontSize: '1.125rem', marginBottom: '0.25rem' }}>{book.title}</h3>
                 <p style={{ fontSize: '0.875rem', opacity: 0.7, marginBottom: '1rem' }}>{book.author}</p>

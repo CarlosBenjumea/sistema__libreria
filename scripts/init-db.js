@@ -21,7 +21,8 @@ const initScript = `
     isbn TEXT UNIQUE,
     available_copies INTEGER DEFAULT 0,
     total_copies INTEGER DEFAULT 0,
-    cover_color TEXT DEFAULT '#4f46e5'
+    cover_color TEXT DEFAULT '#4f46e5',
+    cover_image_url TEXT
   );
 
   CREATE TABLE IF NOT EXISTS users (
@@ -29,7 +30,9 @@ const initScript = `
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     phone TEXT,
-    registered_date TEXT NOT NULL
+    registered_date TEXT NOT NULL,
+    penalized_until TEXT,
+    profile_photo_url TEXT
   );
 
   CREATE TABLE IF NOT EXISTS loans (
@@ -37,10 +40,40 @@ const initScript = `
     book_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
     loan_date TEXT NOT NULL,
+    due_date TEXT,
     return_date TEXT,
     status TEXT DEFAULT 'active',
     FOREIGN KEY(book_id) REFERENCES books(id),
     FOREIGN KEY(user_id) REFERENCES users(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS reviews (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    book_id INTEGER NOT NULL,
+    rating INTEGER NOT NULL CHECK(rating >= 1 AND rating <= 5),
+    comment TEXT NOT NULL,
+    recommendation TEXT,
+    would_recommend INTEGER NOT NULL DEFAULT 1 CHECK(would_recommend IN (0, 1)),
+    photo_url TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    UNIQUE(user_id, book_id),
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY(book_id) REFERENCES books(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS social_shares (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    shared_by_user_id INTEGER NOT NULL,
+    book_id INTEGER NOT NULL,
+    rating INTEGER NOT NULL CHECK(rating >= 1 AND rating <= 5),
+    comment TEXT NOT NULL,
+    photo_url TEXT,
+    shared_at TEXT NOT NULL,
+    UNIQUE(shared_by_user_id, book_id),
+    FOREIGN KEY(shared_by_user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY(book_id) REFERENCES books(id) ON DELETE CASCADE
   );
 `;
 
