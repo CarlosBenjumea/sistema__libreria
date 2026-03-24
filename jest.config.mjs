@@ -17,6 +17,11 @@ const config = {
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov'],
   testEnvironment: 'jest-environment-jsdom',
+  
+  // FORZAMOS a Jest a entender dónde está la raíz
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/$1',
+  },
 }
  
 export default createJestConfig(config)
