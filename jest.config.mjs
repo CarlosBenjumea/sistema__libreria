@@ -17,6 +17,10 @@ const config = {
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov'],
   testEnvironment: 'jest-environment-jsdom',
+  
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/$1',
+  },
 }
  
 export default createJestConfig(config)
