@@ -82,7 +82,7 @@ describe('Tests de la Aplicación de Gestión de Biblioteca', () => {
       render(<SocialPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Aún no hay reseñas compartidas.')).toBeInTheDocument();
+        expect(screen.getByText('Aun no hay resenas compartidas.')).toBeInTheDocument();
       });
     });
 
