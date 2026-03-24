@@ -3,10 +3,10 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 // Importamos los componentes (Ajusta las rutas según tu estructura de carpetas)
-import BooksPage from './BooksPage';
-import SocialPage from './SocialPage';
-import TusLibrosPage from './TusLibrosPage';
-import UsersPage from './UsersPage';
+import BooksPage from '@/app/books/page';
+import SocialPage from '@/app/social/page';
+import TusLibrosPage from '@/app/tus-libros/page';
+import UsersPage from '@/app/users/page';
 
 // 1. Mock de dependencias externas
 // Mock de next/image para evitar errores de renderizado en Jest
